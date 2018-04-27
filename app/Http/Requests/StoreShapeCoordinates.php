@@ -25,7 +25,7 @@ class StoreShapeCoordinates extends FormRequest
     {
         return [
             'body'                 => 'required',
-            'body.coordinates'     => 'required|array',
+            'body.coordinates'     => 'required|array|min:3',
             'body.coordinates*lat' => 'required|numeric',
             'body.coordinates*lng' => 'required|numeric',
         ];
