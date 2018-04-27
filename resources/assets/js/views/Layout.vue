@@ -13,7 +13,7 @@
                         <router-link :to="{ name: 'map' }">Map</router-link>
                     </li>
                     <li v-if="authenticated && user" class="pull-right">
-                        <router-link :to="{ name: 'login' }">Logout</router-link>
+                        <router-link :to="{ name: 'logout' }">Logout</router-link>
                     </li>
                     <li v-else class="pull-right">
                         <router-link :to="{ name: 'login' }">Login</router-link>

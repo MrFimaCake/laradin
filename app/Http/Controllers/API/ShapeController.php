@@ -1,12 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreShapeCoordinates as StoreRequest;
-
+use App\Http\Controllers\Controller;
 use App\UserCoordinates;
 
+/**
+ * Performs CRUD (no Update) for user shapes created on Google Maps
+ */
 class ShapeController extends Controller
 {
     /**
