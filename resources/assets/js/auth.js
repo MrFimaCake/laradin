@@ -44,6 +44,8 @@ class Auth {
         
         this.token = null;
         this.user = null;
+        
+        Event.$emit('userLoggedOut');
     }
     
     check() {

@@ -13,6 +13,11 @@ let routes = [
         component: require('./views/Login.vue')
     },
     {
+        name: 'register',
+        path: '/register',
+        component: require('./views/Register.vue')
+    },
+    {
         name: 'logout',
         path: '/logout',
         component: require('./components/Logout.vue')

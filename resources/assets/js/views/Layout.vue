@@ -7,18 +7,15 @@
                         <router-link :to="{ name: 'home' }">Home</router-link>
                     </li>
                     <li v-if="authenticated && user" >
-                        <router-link :to="{ name: 'user' }">User</router-link>
-                    </li>
-                    <li v-if="authenticated && user" >
                         <router-link :to="{ name: 'map' }">Map</router-link>
                     </li>
                     <li v-if="authenticated && user" class="pull-right">
                         <router-link :to="{ name: 'logout' }">Logout</router-link>
                     </li>
-                    <li v-else class="pull-right">
+                    <li v-if="!authenticated" class="pull-right">
                         <router-link :to="{ name: 'login' }">Login</router-link>
                     </li>
-                    <li v-else class="pull-right">
+                    <li v-if="!authenticated" class="pull-right">
                         <router-link :to="{ name: 'register' }">Register</router-link>
                     </li>
                 </ul>
@@ -43,6 +40,10 @@ export default {
         Event.$on('userLoggedIn', () => {
             this.authenticated = true;
             this.user = auth.user;
+        });
+        Event.$on('userLoggedOut', () => {
+            this.authenticated = false;
+            this.user = null;
         });
     },
 }

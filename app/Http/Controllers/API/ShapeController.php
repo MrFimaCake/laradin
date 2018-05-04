@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreShapeCoordinates as StoreRequest;
 use App\Http\Controllers\Controller;
 use App\UserCoordinates;
+use App\User;
 
 /**
  * Performs CRUD (no Update) for user shapes created on Google Maps
@@ -54,5 +55,13 @@ class ShapeController extends Controller
     {
         $delete = UserCoordinates::destroy($id);
         return response(['delete' => (int)$delete]);
+    }
+    
+    public function count()
+    {
+        $user = auth()->user();
+        $count = UserCoordinates::where('user_id', $user->id)->count();
+        
+        return response(['count' => $count]);
     }
 }

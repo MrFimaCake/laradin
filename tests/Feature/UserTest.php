@@ -9,7 +9,7 @@ use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class LoginTest extends TestCase
+class UserTest extends TestCase
 {
     /**
      * A basic test example.
@@ -32,6 +32,24 @@ class LoginTest extends TestCase
             ->where('user_id', $user->id)
             ->first();
         
+        $response->assertJsonStructure(['status']);
         $response->assertJson(['status' => '200']);
+    }
+    
+    public function testValidatesUsernameAsEmail()
+    {
+        $user = factory(User::class)->create();
+        $usernameNotEmail = uniqid();
+        $userPassword = uniqid();
+        $user->email = $usernameNotEmail;
+        $user->password = Hash::make($userPassword);
+        $user->save();
+        
+        $response = $this->json('POST', '/api/login', [
+            'username' => $usernameNotEmail,
+            'password' => $userPassword,
+        ]);
+        
+        $response->assertJsonValidationErrors(['username']);
     }
 }

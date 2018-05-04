@@ -1,7 +1,11 @@
 <template>
     <div>
         <div class="alert alert-danger" v-if="error">
-            <p>There was an error, unable to sign in with those credentials.</p>
+            <p>There was an error, unable to sign in with those credentials</p>
+            <ul>
+                <li v-if="errorModel.username">{{ errorModel.username }}</li>
+                <li v-if="errorModel.password">{{ errorModel.password }}</li>
+            </ul>
         </div>
         <form autocomplete="off" @submit.prevent="login" method="post">
             <div class="form-group">
@@ -23,7 +27,11 @@ export default {
         return {
             username: '',
             password: '',
-            error: null
+            error: null,
+            errorModel: {
+                username: null,
+                password: null
+            }
         };
     },
 
@@ -34,15 +42,30 @@ export default {
                 password: this.password
             };
 
+            this.error = false;
             
             axios.post('/api/login', data)
                 .then(({data}) => {
+                    let userHasShapesHistory = data.shapes !== undefined 
+                        && data.shapes.count == 0;
                     auth.login(data.token, data.user);
 
-                    this.$router.push('/dashboard');
+                    this.$router.push({
+                        name: 'home', 
+                        params:{cleanHistory:userHasShapesHistory}
+                    });
                 })  
-                .catch(({response}) => {                    
-                    alert(response.data.message);
+                .catch(({response}) => {
+                    if (typeof response.data.errors != 'undefined') {
+                        let errors = response.data.errors;
+                        for (let key in errors) {
+                            if (typeof this.errorModel[key] != 'undefined') {
+                                this.errorModel[key] = errors[key].shift();
+                            }
+                        }
+                        
+                    }
+                    this.error = true;
                 });
         }
     }

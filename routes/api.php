@@ -20,4 +20,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', 'API\AuthController@logout');
     Route::get('/get-user', 'API\AuthController@getUser');
     Route::resource('shapes', 'API\ShapeController')->except(['create', 'show', 'edit', 'update']);
+    Route::get('shapes/count', 'API\ShapeController@count');
 });

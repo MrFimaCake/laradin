@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\User;
 use Illuminate\Support\Facades\DB;
+
+use App\Http\Requests\UserRegisterRequest;
+use App\Http\Requests\UserLoginRequest;
+
+use App\UserCoordinates;
+use App\User;
 
 class AuthController extends Controller
 {
     const OAUTH_CLIENT_APP_NAME = 'Laravel Password Grant Client';
     const OAUTH_TABLE = 'oauth_clients';
     
-    public function register(Request $request)
+    public function register(UserRegisterRequest $request)
     {
         $user = User::create([
             'name'     => $request->input('name'),
@@ -28,11 +34,11 @@ class AuthController extends Controller
     {
         return response()->json([
             'message' => 'Wrong email or password',
-            'status' => 422
-        ], 422);
+            'status' => 400
+        ], 400);
     }
     
-    public function login(Request $request)
+    public function login(UserLoginRequest $request)
     {
         $user = User::whereEmail(request('username'))->first();
 
@@ -60,9 +66,10 @@ class AuthController extends Controller
         $responseData = json_decode($response->getContent());
         
         return response()->json([
-            'token' => $responseData->access_token,
-            'user'  => $user,
-            'status'=> 200
+            'token'  => $responseData->access_token,
+            'user'   => $user,
+            'shapes' => ['count' => UserCoordinates::where('user_id', $user->id)->count()],
+            'status' => 200
         ]);
     }
     
