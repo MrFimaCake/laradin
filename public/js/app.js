@@ -18773,7 +18773,7 @@ var render = function() {
                         }
                       }
                     },
-                    [_vm._v("data: " + _vm._s(key + 1))]
+                    [_vm._v("shape #" + _vm._s(key + 1))]
                   )
                 }),
                 _vm._v(" "),

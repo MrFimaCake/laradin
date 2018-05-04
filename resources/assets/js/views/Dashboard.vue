@@ -25,7 +25,7 @@
 		<div class="btn-group-vertical" role="group">
                     <button class="btn btn-default" 
                         v-for="(value, key) in polygonList"
-			v-on:click="showShape(key, value.overlay)">data: {{ key + 1 }}</button>
+			v-on:click="showShape(key, value.overlay)">shape #{{ key + 1 }}</button>
                     <button class="btn btn-danger" v-on:click="clearList()">Clear all</button>
 				
 		</div>
