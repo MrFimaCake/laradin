@@ -16,7 +16,7 @@ class UserTest extends TestCase
      *
      * @return void
      */
-    public function testUserGetsToken()
+    public function testUserGetsDataOnLogin()
     {
     	$user = factory(User::class)->create();
         $userPassword = uniqid();
@@ -28,12 +28,11 @@ class UserTest extends TestCase
             'password' => $userPassword,
         ]);
         
-        $userToken = DB::table('oauth_access_tokens')
-            ->where('user_id', $user->id)
-            ->first();
-        
-        $response->assertJsonStructure(['status']);
-        $response->assertJson(['status' => '200']);
+        $response->assertJsonStructure(['status', 'user', 'token'])
+            ->assertJson([
+                'user' => ['id' => $user->id],
+                'status' => '200',
+            ]);
     }
     
     public function testValidatesUsernameAsEmail()

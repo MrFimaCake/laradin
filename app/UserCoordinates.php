@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserCoordinates extends Model
 {
-	
-    protected $table = 'user_coordinates';
+	protected $table = 'user_coordinates';
     protected $fillable = [
         'user_id', 'coordinates',
     ];
@@ -22,7 +21,9 @@ class UserCoordinates extends Model
      */
 	public function getCoordinatesAttribute()
     {
-    	return $this->attributes['coordinates'] ? json_decode($this->attributes['coordinates']) : [];
+        $coordinates = $this->attributes['coordinates'];
+        
+        return $coordinates ? json_decode($coordinates) : [];
     }
 
 
