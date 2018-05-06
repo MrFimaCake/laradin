@@ -18024,7 +18024,7 @@ var render = function() {
     _vm.newUserLogin
       ? _c("div", { staticClass: "alert alert-success" }, [
           _vm._v(
-            '\n        Successful registration, welcome to "Test app". Please, input login credentials to login. \n    '
+            '\n        Successful registration, welcome to "Test app". Please, input login credentials to continue. \n    '
           )
         ])
       : _vm._e(),

@@ -58,11 +58,13 @@
         ],
         "setup-clone": [
             "@php artisan migrate",
-            "@php artisan key:generate",
-            "@php artisan config:clear"
+            "@php artisan key:generate"
         ],
         "install-oauth": [
             "@php artisan passport:install"
+        ],
+        "refresh-config": [
+            "@php artisan config:clear"
         ]
     },
     "config": {

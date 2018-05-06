@@ -8,7 +8,7 @@
             </ul>
         </div>
         <div class="alert alert-success" v-if="newUserLogin">
-            Successful registration, welcome to "Test app". Please, input login credentials to login. 
+            Successful registration, welcome to "Test app". Please, input login credentials to continue. 
         </div>
         <form autocomplete="off" @submit.prevent="login" method="post">
             <div class="form-group">
