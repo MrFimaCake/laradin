@@ -19,7 +19,7 @@
 		@click="center=m.position"/>
             </GmapMap>
 	</div>
-	<div class="pull-left" style="padding: 15px;">
+	<div class="pull-left" style="padding: 15px;" v-if="loaded">
             <div class="dash-map-button-wrapper pull-left" v-if="this.polygonList.length > 0">
                 <p>Max perimeter: {{ (maxPerimeter / 1000 ).toFixed(2) }}km</p>
 		<div class="btn-group-vertical" role="group">
@@ -32,10 +32,53 @@
             </div>
             <div class="dash-map-no-data" v-else>No data</div>
 	</div>
+        <div v-else>
+            Loading shapes...
+        </div>
     </div>
 </template>
 <script>
     export default {
+        data() {
+            return {
+                polygonList: [],
+                maxPerimeter: 0,
+		markers: null,
+		error: false,
+		success: false,
+                loaded: false
+            };
+	},
+	mounted() {
+            this.$refs.mapRef.$mapPromise.then(function (map) {
+            map.panTo({lat: 48.471064, lng: 35.003075});
+
+                var drawingManager = new google.maps.drawing.DrawingManager({
+                    drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                    drawingControl: true,
+                    drawingControlOptions: {
+                        position: google.maps.ControlPosition.TOP_CENTER,
+			drawingModes: ['polygon']
+                    }
+		});
+				
+		google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
+                    if (event.type == 'polygon') {
+                        this.resetMaxPerimeter(event.overlay);
+			this.polygonList.forEach(function(item, index) {
+                            item.overlay.setVisible(false);
+			});
+						
+			this.saveShape(event.overlay);
+                    }
+		}.bind(this));
+				
+		drawingManager.setMap(map);
+
+		this.map = map;
+		this.loadUserShapes();
+            }.bind(this));
+	},
         methods: {
             clearList() {
                 var item = null,
@@ -86,6 +129,8 @@
 
                             visible = false;
                         }
+
+                        this.loaded = true;
                     }.bind(this))
 		.catch((error) => { this.error = error.response.data.message; });
             },
@@ -108,45 +153,6 @@
                     this.error = error.response.data.message;
 		}.bind(this));
             }
-	},
-	data() {
-            return {
-                polygonList: [],
-                maxPerimeter: 0,
-		markers: null,
-		error: false,
-		success: false
-            };
-	},
-	mounted() {
-            this.$refs.mapRef.$mapPromise.then(function (map) {
-            map.panTo({lat: 48.471064, lng: 35.003075});
-
-                var drawingManager = new google.maps.drawing.DrawingManager({
-                    drawingMode: google.maps.drawing.OverlayType.POLYGON,
-                    drawingControl: true,
-                    drawingControlOptions: {
-                        position: google.maps.ControlPosition.TOP_CENTER,
-			drawingModes: ['polygon']
-                    }
-		});
-				
-		google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
-                    if (event.type == 'polygon') {
-                        this.resetMaxPerimeter(event.overlay);
-			this.polygonList.forEach(function(item, index) {
-                            item.overlay.setVisible(false);
-			});
-						
-			this.saveShape(event.overlay);
-                    }
-		}.bind(this));
-				
-		drawingManager.setMap(map);
-
-		this.map = map;
-		this.loadUserShapes();
-            }.bind(this));
 	}
     }
 </script>

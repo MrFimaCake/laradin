@@ -18576,8 +18576,52 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            polygonList: [],
+            maxPerimeter: 0,
+            markers: null,
+            error: false,
+            success: false,
+            loaded: false
+        };
+    },
+    mounted: function mounted() {
+        this.$refs.mapRef.$mapPromise.then(function (map) {
+            map.panTo({ lat: 48.471064, lng: 35.003075 });
+
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: ['polygon']
+                }
+            });
+
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
+                if (event.type == 'polygon') {
+                    this.resetMaxPerimeter(event.overlay);
+                    this.polygonList.forEach(function (item, index) {
+                        item.overlay.setVisible(false);
+                    });
+
+                    this.saveShape(event.overlay);
+                }
+            }.bind(this));
+
+            drawingManager.setMap(map);
+
+            this.map = map;
+            this.loadUserShapes();
+        }.bind(this));
+    },
+
     methods: {
         clearList: function clearList() {
             var _this = this;
@@ -18630,6 +18674,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
                     visible = false;
                 }
+
+                this.loaded = true;
             }.bind(this)).catch(function (error) {
                 _this2.error = error.response.data.message;
             });
@@ -18651,45 +18697,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 this.error = error.response.data.message;
             }.bind(this));
         }
-    },
-    data: function data() {
-        return {
-            polygonList: [],
-            maxPerimeter: 0,
-            markers: null,
-            error: false,
-            success: false
-        };
-    },
-    mounted: function mounted() {
-        this.$refs.mapRef.$mapPromise.then(function (map) {
-            map.panTo({ lat: 48.471064, lng: 35.003075 });
-
-            var drawingManager = new google.maps.drawing.DrawingManager({
-                drawingMode: google.maps.drawing.OverlayType.POLYGON,
-                drawingControl: true,
-                drawingControlOptions: {
-                    position: google.maps.ControlPosition.TOP_CENTER,
-                    drawingModes: ['polygon']
-                }
-            });
-
-            google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
-                if (event.type == 'polygon') {
-                    this.resetMaxPerimeter(event.overlay);
-                    this.polygonList.forEach(function (item, index) {
-                        item.overlay.setVisible(false);
-                    });
-
-                    this.saveShape(event.overlay);
-                }
-            }.bind(this));
-
-            drawingManager.setMap(map);
-
-            this.map = map;
-            this.loadUserShapes();
-        }.bind(this));
     }
 });
 
@@ -18747,54 +18754,69 @@ var render = function() {
       1
     ),
     _vm._v(" "),
-    _c("div", { staticClass: "pull-left", staticStyle: { padding: "15px" } }, [
-      this.polygonList.length > 0
-        ? _c("div", { staticClass: "dash-map-button-wrapper pull-left" }, [
-            _c("p", [
-              _vm._v(
-                "Max perimeter: " +
-                  _vm._s((_vm.maxPerimeter / 1000).toFixed(2)) +
-                  "km"
-              )
-            ]),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "btn-group-vertical", attrs: { role: "group" } },
-              [
-                _vm._l(_vm.polygonList, function(value, key) {
-                  return _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-default",
-                      on: {
-                        click: function($event) {
-                          _vm.showShape(key, value.overlay)
-                        }
-                      }
-                    },
-                    [_vm._v("shape #" + _vm._s(key + 1))]
-                  )
-                }),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-danger",
-                    on: {
-                      click: function($event) {
-                        _vm.clearList()
-                      }
-                    }
-                  },
-                  [_vm._v("Clear all")]
+    _vm.loaded
+      ? _c(
+          "div",
+          { staticClass: "pull-left", staticStyle: { padding: "15px" } },
+          [
+            this.polygonList.length > 0
+              ? _c(
+                  "div",
+                  { staticClass: "dash-map-button-wrapper pull-left" },
+                  [
+                    _c("p", [
+                      _vm._v(
+                        "Max perimeter: " +
+                          _vm._s((_vm.maxPerimeter / 1000).toFixed(2)) +
+                          "km"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "btn-group-vertical",
+                        attrs: { role: "group" }
+                      },
+                      [
+                        _vm._l(_vm.polygonList, function(value, key) {
+                          return _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-default",
+                              on: {
+                                click: function($event) {
+                                  _vm.showShape(key, value.overlay)
+                                }
+                              }
+                            },
+                            [_vm._v("shape #" + _vm._s(key + 1))]
+                          )
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-danger",
+                            on: {
+                              click: function($event) {
+                                _vm.clearList()
+                              }
+                            }
+                          },
+                          [_vm._v("Clear all")]
+                        )
+                      ],
+                      2
+                    )
+                  ]
                 )
-              ],
-              2
-            )
-          ])
-        : _c("div", { staticClass: "dash-map-no-data" }, [_vm._v("No data")])
-    ])
+              : _c("div", { staticClass: "dash-map-no-data" }, [
+                  _vm._v("No data")
+                ])
+          ]
+        )
+      : _c("div", [_vm._v("\n            Loading shapes...\n        ")])
   ])
 }
 var staticRenderFns = []
