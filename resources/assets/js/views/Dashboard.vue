@@ -38,39 +38,44 @@
     </div>
 </template>
 <script>
-    export default {
-        data() {
-            return {
-                polygonList: [],
-                maxPerimeter: 0,
-		markers: null,
-		error: false,
-		success: false,
-                loaded: false
-            };
+export default {
+    data() {
+        return {
+            polygonList: [],
+            maxPerimeter: 0,
+    		markers: null,
+    		error: false,
+    		success: false,
+            loaded: false
+        };
 	},
 	mounted() {
-            this.$refs.mapRef.$mapPromise.then(function (map) {
+        this.$refs.mapRef.$mapPromise.then(function (map) {
             map.panTo({lat: 48.471064, lng: 35.003075});
 
-                var drawingManager = new google.maps.drawing.DrawingManager({
-                    drawingMode: google.maps.drawing.OverlayType.POLYGON,
-                    drawingControl: true,
-                    drawingControlOptions: {
-                        position: google.maps.ControlPosition.TOP_CENTER,
-			drawingModes: ['polygon']
-                    }
-		});
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+			        drawingModes: ['polygon']
+                }
+		    });
 				
 		google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
-                    if (event.type == 'polygon') {
-                        this.resetMaxPerimeter(event.overlay);
-			this.polygonList.forEach(function(item, index) {
-                            item.overlay.setVisible(false);
-			});
+            if (event.type == 'polygon') {
+                if (event.overlay.getPath().getArray().length < 3) {
+                    this.error = "Please, create shape with more then 2 corners";
+                    event.overlay.setMap(null);
+                    return;
+                }
+                this.resetMaxPerimeter(event.overlay);
+			    this.polygonList.forEach(function(item, index) {
+                    item.overlay.setVisible(false);
+			    });
 						
-			this.saveShape(event.overlay);
-                    }
+			    this.saveShape(event.overlay);
+            }
 		}.bind(this));
 				
 		drawingManager.setMap(map);
@@ -79,80 +84,82 @@
 		this.loadUserShapes();
             }.bind(this));
 	},
-        methods: {
-            clearList() {
-                var item = null,
-                    i, index;
-		for (i = 0; i < this.polygonList.length; i++) {
-                    index = i;
-                    item = this.polygonList[index];
-                    axios.delete('/api/shapes/' + item.sourceId)
-                        .then( function (response) {
-                            this.list.splice(0,1);
-                            this.item.overlay.setMap(null);
-                        }.bind({index, item, list: this.polygonList}))
-                        .catch( (error) =>  { this.error = error.response.data.message; });
-				}
-            },
-            calculatePerimeter(overlay) {
-                return google.maps.geometry
-                    .spherical
-                    .computeLength(overlay.getPath().getArray());
-            },
-            resetMaxPerimeter(overlay) {
-                var perimeter = this.calculatePerimeter(overlay);
+    methods: {
+        clearList() {
+            var item = null,
+                i, index;
+		    for (i = 0; i < this.polygonList.length; i++) {
+                index = i;
+                item = this.polygonList[index];
+                axios.delete('/api/shapes/' + item.sourceId)
+                    .then( function (response) {
+                        this.list.splice(0,1);
+                        this.item.overlay.setMap(null);
+                    }.bind({index, item, list: this.polygonList}))
+                    .catch( (error) =>  { this.error = error.response.data.message; });
+			}
+        },
+        calculatePerimeter(overlay) {
+            return google.maps.geometry
+                .spherical
+                .computeLength(overlay.getPath().getArray());
+        },
+        resetMaxPerimeter(overlay) {
+            var perimeter = this.calculatePerimeter(overlay);
 						
-                if (perimeter > this.maxPerimeter) {
-                    this.maxPerimeter = perimeter;
-                }
-            },
-            loadUserShapes() {
-                axios.get('/api/shapes')
-                    .then(function (response) {
-                        var shapes = response.data.shapes,
-                            shapesCount = shapes.length,
-                            i = 0,
-                            visible = true;
+            if (perimeter > this.maxPerimeter) {
+                this.maxPerimeter = perimeter;
+            }
+        },
+        loadUserShapes() {
+            axios.get('/api/shapes')
+                .then(function (response) {
+                    var shapes = response.data.shapes,
+                        shapesCount = shapes.length,
+                        i = 0,
+                        visible = true;
 
-			for (i; i < shapesCount; i++) {
-                            var itemShape = shapes[i],
-                                shapeCoords = itemShape.coordinates,
-				itemPolygon = new google.maps.Polygon({
-                                    paths: shapeCoords,
-                                    visible: visible
-				});
+            		for (i; i < shapesCount; i++) {
+                        let itemShape = shapes[i],
+                            shapeCoords = itemShape.coordinates,
+            				itemPolygon = new google.maps.Polygon({
+                                paths: shapeCoords,
+                                visible: visible
+            				});
 
-                            itemPolygon.setMap(this.map);
+                        itemPolygon.setMap(this.map);
 
-                            this.resetMaxPerimeter(itemPolygon);
-                            this.polygonList.push({overlay: itemPolygon, sourceId: itemShape.id});
+                        this.resetMaxPerimeter(itemPolygon);
+                        this.polygonList.push({overlay: itemPolygon, sourceId: itemShape.id});
 
-                            visible = false;
-                        }
+                        visible = false;
+                    }
 
-                        this.loaded = true;
-                    }.bind(this))
-		.catch((error) => { this.error = error.response.data.message; });
-            },
-            showShape(k,shape) {
-                this.polygonList.forEach(function (item, index) {
-                    item.overlay.setVisible(index === this.k);
-		}.bind({k,shape}));
-            },
-            saveShape(shape) {
-                axios.post('/api/shapes', {
+                    this.loaded = true;
+                }.bind(this))
+        	   .catch((error) => { this.error = error.response.data.message; });
+        },
+
+        showShape(k,shape) {
+            this.polygonList.forEach(function (item, index) {
+                item.overlay.setVisible(index === this.k);
+            }.bind({k,shape}));
+        },
+        
+        saveShape(shape) {
+            axios.post('/api/shapes', {
                     body: {
                         coordinates: shape.getPath().getArray()
                     }
-		})
-		.then(function (response) {
+		        })
+                .then(function (response) {
                     this.polygonList.push({overlay: shape, sourceId: response.data.shape.id});
                     this.error = false;
-		}.bind(this))
-		.catch(function (error) {
+            	}.bind(this))
+            	.catch(function (error) {
                     this.error = error.response.data.message;
-		}.bind(this));
-            }
+            	}.bind(this));
+        }
 	}
-    }
+}
 </script>

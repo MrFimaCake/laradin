@@ -51,6 +51,18 @@
         ],
         "post-install-cmd": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "prepare-clone": [
+            "composer install", 
+            "composer dumpautoload"
+        ],
+        "setup-clone": [
+            "@php artisan migrate",
+            "@php artisan key:generate",
+            "@php artisan config:clear"
+        ],
+        "install-oauth": [
+            "@php artisan passport:install"
         ]
     },
     "config": {

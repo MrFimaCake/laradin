@@ -7,6 +7,9 @@
                 <li v-if="errorModel.password">{{ errorModel.password }}</li>
             </ul>
         </div>
+        <div class="alert alert-success" v-if="newUserLogin">
+            Successful registration, welcome to "Test app". Please, input login credentials to login. 
+        </div>
         <form autocomplete="off" @submit.prevent="login" method="post">
             <div class="form-group">
                 <label for="email">E-mail</label>
@@ -24,6 +27,8 @@
 <script>
 export default {
     data() {
+        let newUserLogin = typeof this.$route.params.newUserLogin === 'boolean' 
+            && this.$route.params.newUserLogin;
         return {
             username: '',
             password: '',
@@ -31,7 +36,8 @@ export default {
             errorModel: {
                 username: null,
                 password: null
-            }
+            },
+            newUserLogin 
         };
     },
 
@@ -43,7 +49,7 @@ export default {
             };
 
             this.error = false;
-            
+            this.newUserLogin = false;
             axios.post('/api/login', data)
                 .then(({data}) => {
                     let userHasShapesHistory = data.shapes !== undefined 

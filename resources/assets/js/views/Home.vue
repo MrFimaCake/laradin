@@ -32,9 +32,15 @@ export default {
                     this.readyToRender = true;
                     
                 })
-                .catch((response) => {
-                    this.renderStart = true;
-                    this.readyToRender = true;
+                .catch(({response}) => {
+                    if (response.status === 401) {
+                        this.$router.push({
+                            name:'login'
+                        });
+                    } else {
+                        this.renderStart = true;
+                        this.readyToRender = true;
+                    }
                 });
         }
     }

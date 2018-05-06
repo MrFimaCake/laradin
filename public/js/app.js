@@ -17812,9 +17812,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.get('/api/shapes/count').then(function (response) {
                 _this.renderStart = response.data.count === 0;
                 _this.readyToRender = true;
-            }).catch(function (response) {
-                _this.renderStart = true;
-                _this.readyToRender = true;
+            }).catch(function (_ref) {
+                var response = _ref.response;
+
+                if (response.status === 401) {
+                    _this.$router.push({
+                        name: 'login'
+                    });
+                } else {
+                    _this.renderStart = true;
+                    _this.readyToRender = true;
+                }
             });
         }
     }
@@ -17926,9 +17934,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
+        var newUserLogin = typeof this.$route.params.newUserLogin === 'boolean' && this.$route.params.newUserLogin;
         return {
             username: '',
             password: '',
@@ -17936,7 +17948,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             errorModel: {
                 username: null,
                 password: null
-            }
+            },
+            newUserLogin: newUserLogin
         };
     },
 
@@ -17951,7 +17964,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             };
 
             this.error = false;
-
+            this.newUserLogin = false;
             axios.post('/api/login', data).then(function (_ref) {
                 var data = _ref.data;
 
@@ -18005,6 +18018,14 @@ var render = function() {
               ? _c("li", [_vm._v(_vm._s(_vm.errorModel.password))])
               : _vm._e()
           ])
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.newUserLogin
+      ? _c("div", { staticClass: "alert alert-success" }, [
+          _vm._v(
+            '\n        Successful registration, welcome to "Test app". Please, input login credentials to login. \n    '
+          )
         ])
       : _vm._e(),
     _vm._v(" "),
@@ -18208,7 +18229,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.post('/api/register', data).then(function (_ref) {
                 var data = _ref.data;
 
-                _this.$router.push('/login');
+                _this.$router.push({
+                    name: 'login',
+                    params: { newUserLogin: true }
+                });
             }).catch(function (_ref2) {
                 var response = _ref2.response;
 
@@ -18606,6 +18630,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
                 if (event.type == 'polygon') {
+                    if (event.overlay.getPath().getArray().length < 3) {
+                        this.error = "Please, create shape with more then 2 corners";
+                        event.overlay.setMap(null);
+                        return;
+                    }
                     this.resetMaxPerimeter(event.overlay);
                     this.polygonList.forEach(function (item, index) {
                         item.overlay.setVisible(false);

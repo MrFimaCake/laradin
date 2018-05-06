@@ -53,7 +53,10 @@
                 };
                 axios.post('/api/register', data)
                     .then(({data}) => {
-                        this.$router.push('/login');
+                        this.$router.push({
+                            name: 'login',
+                            params: {newUserLogin:true}
+                        });
                     })  
                     .catch(({response}) => { 
                         if (typeof response.data.errors != 'undefined') {
