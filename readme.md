@@ -16,7 +16,9 @@ Now let's call `composer setup-clone` which will apply migrations, generate appl
 Call the `composer install-oauth` to install [Laravel Passport](https://laravel.com/docs/5.6/passport) which we will use for API Authentication.
 
 
-Last edit ".env" file with and set "OAUTH_CLIENT_APP_ID" variable with the ID of oauth client which you will use for in auth process.
+Last edit ".env" file with and set "OAUTH_CLIENT_APP_ID" variable with the ID of oauth client record in "oauth_clients" table which you will use for in auth process. Make sure that you've chosen the record with "1" value in password_client field.
+
+After all edits in ".env" file call `composer refresh-config` command.
 
 To configure web server follow these [instructions](https://laravel.com/docs/5.6/installation#configuration). To run application in development mode run `php artisan serve` command.
 
