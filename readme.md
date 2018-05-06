@@ -1,3 +1,26 @@
+## Project info
+
+This project is made with Laravel framework, so to install and run it read the [Server requirements](https://laravel.com/docs/5.6/installation#server-requirements) from official documentation. Also you need to have [Composer](https://getcomposer.org/doc/00-intro.md) installed and [Mysql database](https://dev.mysql.com/doc/) or just [one of the connections](https://github.com/MrFimaCake/laradin/blob/master/config/database.php).
+
+## Installation
+To install you can first clone this repository via `git clone https://github.com/MrFimaCake/laradin.git` command in your terminal.
+
+
+After cloning files go to the project folder and run `composer prepare-clone` command which will install dependencies, create ".env" file in project root and update autoloader.
+
+
+Next go to the ".env" file and set database params as environment variables acording [instructions](https://laravel.com/docs/5.6/database#configuration).
+
+
+Now let's call `composer setup-clone` which will apply migrations, generate application keys and clear config cache.
+Call the `composer install-oauth` to install [Laravel Passport](https://laravel.com/docs/5.6/passport) which we will use for API Authentication.
+
+
+Last edit ".env" file with and set "OAUTH_CLIENT_APP_ID" variable with the ID of oauth client which you will use for in auth process.
+
+To configure web server follow these [instructions](https://laravel.com/docs/5.6/installation#configuration). To run application in development mode run `php artisan serve` command.
+
+## Framework info
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
 <p align="center">
