@@ -37,9 +37,9 @@ class AuthController extends Controller
         ], 400);
     }
 
-    private function getOAuthAppName()
+    private function getOAuthAppId()
     {
-        return env('OAUTH_CLIENT_APP_NAME', 'Laravel Password Grant Client');
+        return env('OAUTH_CLIENT_APP_ID');
     }
     
     public function login(UserLoginRequest $request)
@@ -51,7 +51,7 @@ class AuthController extends Controller
         }
         
         $clientRecord = DB::table(self::OAUTH_TABLE)
-            ->where('name', $this->getOAuthAppName())
+            ->where('id', $this->getOAuthAppId())
             ->first();
         
         if (!$clientRecord) {
