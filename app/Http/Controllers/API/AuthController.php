@@ -16,7 +16,6 @@ use App\User;
 
 class AuthController extends Controller
 {
-    const OAUTH_CLIENT_APP_NAME = 'Laravel Password Grant Client';
     const OAUTH_TABLE = 'oauth_clients';
     
     public function register(UserRegisterRequest $request)
@@ -37,6 +36,11 @@ class AuthController extends Controller
             'status' => 400
         ], 400);
     }
+
+    private function getOAuthAppName()
+    {
+        return env('OAUTH_CLIENT_APP_NAME', 'Laravel Password Grant Client');
+    }
     
     public function login(UserLoginRequest $request)
     {
@@ -47,22 +51,27 @@ class AuthController extends Controller
         }
         
         $clientRecord = DB::table(self::OAUTH_TABLE)
-            ->where('name', self::OAUTH_CLIENT_APP_NAME)
+            ->where('name', $this->getOAuthAppName())
             ->first();
         
-        $data = [
+        if (!$clientRecord) {
+            throw new \Illuminate\Validation\UnauthorizedException("Unable to get app");
+        }
+
+        $innerRequest = Request::create('/oauth/token', 'POST', [
             'grant_type' => 'password',
             'client_id' => $clientRecord->id,
             'client_secret' => $clientRecord->secret,
             'username' => $request->input('username'),
             'password' => $request->input('password'),
-        ];
-
-        $innerRequest = Request::create('/oauth/token', 'POST', $data);
+        ]);
+        
         $response = app()->handle($innerRequest);
+        
         if ($response->getStatusCode() != 200) {
             return $this->errorLoginResponse();
         }
+        
         $responseData = json_decode($response->getContent());
         
         return response()->json([
@@ -82,7 +91,7 @@ class AuthController extends Controller
     {
         /** @var \Laravel\Passport\Token $token */
         $token = auth()->user()->token();
-        $refreshToken = DB::table('oauth_refresh_tokens')
+        DB::table('oauth_refresh_tokens')
             ->where('access_token_id', $token->id)
             ->update([
                 'revoked' => true
