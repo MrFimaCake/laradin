@@ -22,6 +22,12 @@ After all edits in ".env" file call `composer refresh-config` command.
 
 To configure web server follow these [instructions](https://laravel.com/docs/5.6/installation#configuration). To run application in development mode run `php artisan serve` command.
 
+## Usage
+
+First of all you need to create account via registration process. Go to "Registration"(nav menu link), follow form fields and submit form. After registration complete you'll be redirected to login form. Use your credentials to sign in.
+
+If you see "Congratulations" page, click on "Map" menu item to start creating shapes with Google Maps tools.
+
 ## Framework info
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
